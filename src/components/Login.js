@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+
+// API
 import client from '../api/feathers';
 
 export default class Login extends Component {

@@ -1,0 +1,9 @@
+.add-transaction-form {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  padding: 0 20%;
+}
+
+.add-transaction-form .error {
+  grid-column: 1 / span 3;
+}

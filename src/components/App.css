@@ -17,3 +17,10 @@ body {
 main {
   padding: 30px;
 }
+
+@media (min-width: 740px) {
+  main {
+    width: var(--narrow-width);
+    margin: 0 auto;
+  }
+}
