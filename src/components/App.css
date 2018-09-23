@@ -1,0 +1,19 @@
+html, body, #root {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  background: linear-gradient(130deg, var(--blue-two), var(--blue-one), var(--blue-two));
+}
+
+.content-wrapper {
+  min-height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 100%;
+}
+
+main {
+  padding: 30px;
+}

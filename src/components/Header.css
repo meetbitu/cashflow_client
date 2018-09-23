@@ -1,0 +1,12 @@
+header {
+  background-color: white;
+  padding: 10px;
+  border-bottom: var(--blue-four) 1px solid;
+  position: relative;
+}
+
+button.logout {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
