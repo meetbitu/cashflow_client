@@ -1,0 +1,25 @@
+version: "3.5"
+services:
+  client:
+    build:
+      context: .docker/client
+      dockerfile: Dockerfile
+    volumes:
+      - .:/usr/src/app
+    stdin_open: true
+    tty: true
+    networks:
+      - cashflow_default
+  caddy:
+    build:
+      context: .docker/caddy
+      dockerfile: Dockerfile
+    volumes:
+      - .:/srv
+    ports:
+      - "2015:2015"
+    networks:
+      - cashflow_default
+networks:
+  cashflow_default:
+    external: true

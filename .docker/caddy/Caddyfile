@@ -1,0 +1,5 @@
+cashflow-client.local {
+  bind {$ADDRESS}
+  proxy / client:3000
+  tls off
+}
