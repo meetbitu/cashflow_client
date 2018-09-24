@@ -8,10 +8,10 @@ class Transaction extends Component {
     const { description, amount } = this.props;
 
     return (
-      <li className="transaction">
+      <div className="transaction">
         <span className="description">{description}</span>
         <span className="amount">{amount}</span>
-      </li>
+      </div>
     );
   }
 }
