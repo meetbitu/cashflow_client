@@ -17,13 +17,14 @@ class AddTransaction extends Component {
   }
 
   add() {
-    const { description, amount } = this.state;
+    const { description, amount, balance } = this.state;
 
     return client.service('transactions')
-      .create({ description, amount })
+      .create({ description, amount, balance })
       .then(() => this.setState({
         description: null,
         amount: null,
+        balance: null,
       }))
       .catch(error => this.setState({ error }));
   }
@@ -45,6 +46,12 @@ class AddTransaction extends Component {
           name="amount"
           placeholder="amount"
           onChange={event => this.updateField('amount', event)}
+        />
+        <input
+          type="textfield"
+          name="balance"
+          placeholder="balance (optional)"
+          onChange={event => this.updateField('balance', event)}
         />
         <button type="button" className="add-transaction" onClick={() => this.add()}>
           Add transaction

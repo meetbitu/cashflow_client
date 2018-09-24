@@ -4,13 +4,21 @@ import React, { Component } from 'react';
 import './Transaction.css';
 
 class Transaction extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {};
+  }
+
   render() {
-    const { description, amount } = this.props;
+    const { description, amount, balance } = this.props;
 
     return (
       <div className="transaction">
         <span className="description">{description}</span>
         <span className="amount">{amount}</span>
+        <span className="balance">{balance}</span>
+        {this.state.error && this.state.error.message}
       </div>
     );
   }

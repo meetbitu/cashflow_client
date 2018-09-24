@@ -1,3 +1,10 @@
-.transaction .amount {
-  float: right;
+.transaction {
+  padding: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.transaction .amount,
+.transaction .balance {
+  text-align: right;
 }

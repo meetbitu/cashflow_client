@@ -1,4 +1,8 @@
 import React, { Component } from 'react';
+
+// Utilities
+import each from 'lodash/each';
+import map from 'lodash/map';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 // API
@@ -36,7 +40,6 @@ const getItemStyle = (isDragging, draggableStyle) => ({
 
   // some basic styles to make the items look a bit nicer
   userSelect: 'none',
-  padding: grid * 2,
   margin: `0 0 ${grid}px 0`,
 
   // change background colour if dragging
@@ -66,7 +69,7 @@ class Application extends Component {
 
   componentDidMount() {
     const transactions = client.service('transactions');
-    const users = client.service('users');
+    // const users = client.service('users');
 
     // Try to authenticate with the JWT stored in localStorage
     client.authenticate().catch(() => this.setState({ login: null }));
@@ -81,38 +84,52 @@ class Application extends Component {
             $limit: 25
           }
         }),
-        users.find()
+        // users.find()
       ]).then( ([
         transactionPage,
-        userPage
+        // userPage
       ]) => {
         // We want the latest transactions but in the reversed order
         const transactions = transactionPage.data.reverse();
-        const users = userPage.data;
+        // const users = userPage.data;
 
         // Once both return, update the state
-        // this.setState({ login, transactions, users });
-        this.setState({ login, transactions, users });
+        // this.setState((state, props) => ({ login, transactions, users }));
+        this.setState((state, props) => ({ login, transactions }));
       });
 
     });
 
     // On logout reset all all local state (which will then show the login screen)
-    client.on('logout', () => this.setState({
+    client.on('logout', () => this.setState((state, props) => ({
       login: null,
       transactions: null,
-      users: null
-    }));
+      // users: null
+    })));
 
     // Add new transactions to the transaction list
-    transactions.on('created', transaction => this.setState({
-      transactions: this.state.transactions.concat(transaction)
-    }));
+    transactions.on('created', transaction => this.setState((state, props) => ({
+      transactions: state.transactions.concat(transaction)
+    })));
 
-    // Add new users to the user list
-    users.on('created', user => this.setState({
-      users: this.state.users.concat(user)
-    }));
+    transactions.on('patched', patchedTransaction => {
+      const patchedTransactions = map(this.state.transactions, existing => {
+        return (existing.id === patchedTransaction.id) ? patchedTransaction : existing;
+      });
+
+      this.setState((state, props) => ({ transactions: patchedTransactions }));
+    });
+
+    // transactions.on('removed', currentTransaction => {
+    //   console.log('removed');
+    //   const currentTransactions = map(this.state.transactions, existing => {
+    //     if (existing.id !== currentTransaction.id) {
+    //       return existing;
+    //     }
+    //   });
+
+    //   this.setState((state, props) => ({ transactions: currentTransactions }));
+    // });
   }
 
   onDragEnd(result) {
@@ -127,9 +144,29 @@ class Application extends Component {
       result.destination.index
     );
 
+    // Iterate over each one updating balances
+    let balance = 0;
+    const transactionsToUpdate = [];
+
+    each(transactions, (item, index) => {
+      // @TODO: Maybe here is where we should update the order?
+      // @TODO: What to do about dates?
+
+      if (item.balance + item.amount !== balance) {
+        item.balance = balance + item.amount;
+        transactionsToUpdate.push({ id: item.id, balance: item.balance });
+      }
+
+      balance = item.balance;
+    })
+
     this.setState({
       transactions,
     });
+
+    each(transactionsToUpdate, item => client.service('transactions')
+      .patch(item.id, { balance: item.balance })
+      .catch(error => console.log(error)));
   }
 
   render() {
@@ -181,8 +218,10 @@ class Application extends Component {
                         )}
                       >
                         <Transaction
+                          id={transaction.id}
                           description={transaction.description}
                           amount={transaction.amount}
+                          balance={transaction.balance}
                         />
                       </div>
                     )}

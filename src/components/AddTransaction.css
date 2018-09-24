@@ -1,9 +1,15 @@
 .add-transaction-form {
   display: grid;
-  grid-template-columns: 1fr auto auto;
-  padding: 0 20%;
+  grid-template-columns: 1fr auto auto auto;
+}
+
+@media (min-width: 740px) {
+  .add-transaction-form {
+    width: var(--narrow-width);
+    margin: 0 auto;
+  }
 }
 
 .add-transaction-form .error {
-  grid-column: 1 / span 3;
+  grid-column: 1 / span 4;
 }
