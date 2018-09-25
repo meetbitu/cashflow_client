@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@feathersjs/client": "^3.7.2",
+    "classnames": "^2.2.6",
     "fflip": "^4.0.0",
     "react": "^16.5.2",
     "react-beautiful-dnd": "^9.0.2",

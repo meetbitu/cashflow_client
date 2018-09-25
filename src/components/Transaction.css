@@ -8,3 +8,8 @@
 .transaction .balance {
   text-align: right;
 }
+
+.transaction.negative {
+  color: var(--red-five);
+  background-color: var(--red-two);
+}

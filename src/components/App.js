@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 // Utilities
 import each from 'lodash/each';
 import map from 'lodash/map';
+import sortBy from 'lodash/sortBy';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 // API
@@ -33,14 +34,11 @@ const reorder = (list, startIndex, endIndex) => {
   return result;
 };
 
-const grid = 8;
-
 const bodyStyles = window.getComputedStyle(document.body);
 const getItemStyle = (isDragging, draggableStyle) => ({
 
   // some basic styles to make the items look a bit nicer
   userSelect: 'none',
-  margin: `0 0 ${grid}px 0`,
 
   // change background colour if dragging
 
@@ -54,7 +52,6 @@ const getItemStyle = (isDragging, draggableStyle) => ({
 
 // const getListStyle = isDraggingOver => ({
 //   background: isDraggingOver ? 'lightblue' : 'lightgrey',
-//   padding: grid,
 //   width: 250,
 // });
 
@@ -80,7 +77,7 @@ class Application extends Component {
       Promise.all([
         transactions.find({
           query: {
-            $sort: { createdAt: -1 },
+            $sort: { weight: -1, createdAt: -1 },
             $limit: 25
           }
         }),
@@ -108,16 +105,19 @@ class Application extends Component {
     })));
 
     // Add new transactions to the transaction list
-    transactions.on('created', transaction => this.setState((state, props) => ({
-      transactions: state.transactions.concat(transaction)
-    })));
+    transactions.on('created', transaction => {
+      const transactions = this.state.transactions.concat(transaction);
+      this.processTransactionOrder(transactions);
+    });
 
     transactions.on('patched', patchedTransaction => {
-      const patchedTransactions = map(this.state.transactions, existing => {
+      const { transactions } = this.state;
+      const patchedTransactions = map(transactions, existing => {
         return (existing.id === patchedTransaction.id) ? patchedTransaction : existing;
       });
 
-      this.setState((state, props) => ({ transactions: patchedTransactions }));
+      // @TODO: This is flickering for the user who is doing the re-ordering. But is necessary for other users?
+      this.setState((state, props) => ({ transactions: sortBy(patchedTransactions, 'weight') }));
     });
 
     // transactions.on('removed', currentTransaction => {
@@ -144,17 +144,22 @@ class Application extends Component {
       result.destination.index
     );
 
+    // setState is now handled in processTransactionOrder()
+
+    this.processTransactionOrder(transactions);
+  }
+
+  processTransactionOrder(transactions) {
     // Iterate over each one updating balances
     let balance = 0;
     const transactionsToUpdate = [];
 
     each(transactions, (item, index) => {
-      // @TODO: Maybe here is where we should update the order?
+      // @TODO: This weight/index concept is going to break when we get more transactions than are displayed.
       // @TODO: What to do about dates?
-
-      if (item.balance + item.amount !== balance) {
+      if (item.balance - item.amount !== balance) {
         item.balance = balance + item.amount;
-        transactionsToUpdate.push({ id: item.id, balance: item.balance });
+        transactionsToUpdate.push({ id: item.id, balance: item.balance, weight: index });
       }
 
       balance = item.balance;
@@ -164,8 +169,9 @@ class Application extends Component {
       transactions,
     });
 
+    // @TODO: Why are all the transactions here? When sorting the bottom of the list the top doesn't need to be updated
     each(transactionsToUpdate, item => client.service('transactions')
-      .patch(item.id, { balance: item.balance })
+      .patch(item.id, { balance: item.balance, weight: item.weight })
       .catch(error => console.log(error)));
   }
 

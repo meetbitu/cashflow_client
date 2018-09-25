@@ -16,6 +16,10 @@ class AddTransaction extends Component {
     this.setState({ [name]: event.target.value });
   }
 
+  updateNumberField(name, event) {
+    this.setState({ [name]: parseInt(event.target.value, 10) });
+  }
+
   add() {
     const { description, amount, balance } = this.state;
 
@@ -45,13 +49,13 @@ class AddTransaction extends Component {
           type="textfield"
           name="amount"
           placeholder="amount"
-          onChange={event => this.updateField('amount', event)}
+          onChange={event => this.updateNumberField('amount', event)}
         />
         <input
           type="textfield"
           name="balance"
           placeholder="balance (optional)"
-          onChange={event => this.updateField('balance', event)}
+          onChange={event => this.updateNumberField('balance', event)}
         />
         <button type="button" className="add-transaction" onClick={() => this.add()}>
           Add transaction
