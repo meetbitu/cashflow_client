@@ -24,3 +24,9 @@ main {
     margin: 0 auto;
   }
 }
+
+div.error {
+  background-color: var(--light-yellow);
+  color: var(--yellow);
+  text-align: center;
+}

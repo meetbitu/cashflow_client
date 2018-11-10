@@ -172,12 +172,14 @@ class Application extends Component {
     // @TODO: Why are all the transactions here? When sorting the bottom of the list the top doesn't need to be updated
     each(transactionsToUpdate, item => client.service('transactions')
       .patch(item.id, { balance: item.balance, weight: item.weight })
-      .catch(error => console.log(error)));
+      .catch(error => this.setState((state, props) => ({ error }))));
   }
 
   render() {
-    const { transactions } = this.state;
+    const { transactions, error } = this.state;
     let output = '';
+
+    const messages = error && error.message ? <p className="error">{error.message}</p> : '';
 
     if (this.state.login === undefined) {
       output = (<div className="content-wrapper">
@@ -192,6 +194,8 @@ class Application extends Component {
         <Header
           login={ this.state.login }
         />
+
+        <div className="error">{messages}</div>
 
         <DragDropContext
           onDragStart={this.onDragStart}
